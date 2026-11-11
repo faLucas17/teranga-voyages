@@ -1,0 +1,49 @@
+@startuml navigation-frontend
+!include _style.iuml
+title Modélisation du frontend — arborescence des écrans (React Router)
+left to right direction
+
+rectangle "PublicLayout\n(Navbar + Footer + WhatsApp)" as PL {
+  rectangle "/  Accueil" as home
+  rectangle "/voyages\nListe + filtres" as pk
+  rectangle "/voyages/:slug\nDétail + avis + favoris" as pkd
+  rectangle "/destinations" as ds
+  rectangle "/destinations/:slug" as dsd
+  rectangle "/vols\nRecherche de vols" as fl
+  rectangle "/hotels" as ht
+  rectangle "/visa\nDemande de visa" as vi
+  rectangle "/contact" as ct
+  rectangle "/connexion · /inscription" as auth
+  rectangle "/reservation\nTunnel de réservation 🔒" as bk
+  rectangle "AccountLayout 🔒" as AL {
+    rectangle "/compte\nMes réservations" as mb
+    rectangle "/compte/reservations/:id\nDétail, paiement, impression" as mbd
+    rectangle "/compte/favoris" as fav
+    rectangle "/compte/visas" as mv
+    rectangle "/compte/profil" as pr
+  }
+}
+
+rectangle "AdminLayout 🔒 admin + agent\n(chargé à la demande)" as ADL {
+  rectangle "/admin\nTableau de bord (graphiques)" as dash
+  rectangle "/admin/reservations[/:id]" as ab
+  rectangle "/admin/paiements" as ap
+  rectangle "/admin/voyages · destinations\nhotels · vols · codes-promo\n(ResourcePage générique)" as crud
+  rectangle "/admin/visas · messages\navis · newsletter" as inbox
+  rectangle "/admin/utilisateurs\n/admin/parametres 🔒 admin" as adm
+}
+
+home --> pk
+home --> ds
+pk --> pkd
+ds --> dsd
+dsd --> pkd
+pkd --> bk
+fl --> bk
+ht --> bk
+bk --> mbd
+mb --> mbd
+auth --> mb
+auth --> dash
+dash --> ab
+@enduml

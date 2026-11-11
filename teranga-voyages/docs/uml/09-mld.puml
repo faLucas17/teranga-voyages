@@ -1,0 +1,131 @@
+@startuml mld
+!include _style.iuml
+title Modèle logique de données (MLD)
+hide circle
+skinparam linetype ortho
+
+entity users {
+  * id : bigint <<PK>>
+  --
+  name, email <<UQ>>, phone
+  role : admin|agent|client
+  is_active, password
+}
+entity destinations {
+  * id <<PK>>
+  --
+  name, slug <<UQ>>, country, continent
+  description, image, best_period
+  is_featured, is_active
+}
+entity travel_packages {
+  * id <<PK>>
+  --
+  # destination_id <<FK>>
+  title, slug <<UQ>>, type
+  itinerary, included, excluded, gallery : json
+  duration_days, start_date, end_date
+  price, child_price
+  seats_total, seats_available
+  is_featured, is_active
+}
+entity hotels {
+  * id <<PK>>
+  --
+  # destination_id <<FK>>
+  name, slug <<UQ>>, stars, amenities : json
+  price_per_night, rooms_available
+}
+entity flights {
+  * id <<PK>>
+  --
+  airline, flight_number
+  from_code, to_code, departure_at, arrival_at
+  cabin_class, price, seats_available
+}
+entity bookings {
+  * id <<PK>>
+  --
+  reference <<UQ>>
+  # user_id <<FK>>
+  bookable_type, bookable_id (polymorphe)
+  start_date, end_date, adults, children
+  subtotal, discount, total, currency
+  status, # coupon_id <<FK>>
+  contact_*, special_requests, meta : json
+}
+entity travelers {
+  * id <<PK>>
+  --
+  # booking_id <<FK>>
+  first_name, last_name, type
+  birth_date, nationality, passport_number
+}
+entity payments {
+  * id <<PK>>
+  --
+  # booking_id <<FK>>
+  # user_id <<FK>>
+  amount, method, driver, status
+  transaction_ref <<UQ>>, paid_at
+}
+entity coupons {
+  * id <<PK>>
+  --
+  code <<UQ>>, type, value
+  min_amount, max_uses, used_count, expires_at
+}
+entity reviews {
+  * id <<PK>>
+  --
+  # user_id <<FK>>
+  # travel_package_id <<FK>>
+  rating, title, comment, is_approved
+}
+entity favorites {
+  * id <<PK>>
+  --
+  # user_id <<FK>>
+  # travel_package_id <<FK>>
+}
+entity visa_requests {
+  * id <<PK>>
+  --
+  reference <<UQ>>, # user_id <<FK>> (nullable)
+  full_name, email, phone
+  destination_country, visa_type, travel_date
+  status, admin_notes
+}
+entity contact_messages {
+  * id <<PK>>
+  --
+  name, email, subject, message, is_read
+}
+entity settings {
+  * id <<PK>>
+  --
+  key <<UQ>>, value, is_public
+}
+entity personal_access_tokens {
+  * id <<PK>>
+  --
+  tokenable_type, tokenable_id
+  token <<UQ>>, abilities, expires_at
+}
+
+destinations ||--o{ travel_packages
+destinations ||--o{ hotels
+users ||--o{ bookings
+bookings ||--o{ travelers
+bookings ||--o{ payments
+coupons |o--o{ bookings
+users ||--o{ reviews
+travel_packages ||--o{ reviews
+users ||--o{ favorites
+travel_packages ||--o{ favorites
+users |o--o{ visa_requests
+users ||--o{ personal_access_tokens
+travel_packages |o..o{ bookings : bookable
+hotels |o..o{ bookings : bookable
+flights |o..o{ bookings : bookable
+@enduml

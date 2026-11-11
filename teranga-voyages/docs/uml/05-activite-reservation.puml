@@ -1,0 +1,54 @@
+@startuml activite-reservation
+!include _style.iuml
+title Diagramme d'activité — parcours de réservation
+
+|Client|
+start
+:Rechercher une offre\n(voyage, vol ou hôtel);
+:Consulter le détail;
+if (Connecté ?) then (non)
+  :Se connecter ou créer un compte;
+endif
+:Choisir le nombre de voyageurs\n(et les dates pour un hôtel);
+:Saisir les informations des voyageurs;
+if (Code promo ?) then (oui)
+  |Système|
+  if (Code valide ?) then (oui)
+    :Appliquer la remise;
+  else (non)
+    :Afficher l'erreur;
+  endif
+  |Client|
+endif
+:Accepter les CGV et confirmer;
+|Système|
+if (Places disponibles ?) then (oui)
+  :Créer la réservation « en attente »;
+  :Bloquer les places;
+  :Envoyer l'e-mail de confirmation;
+else (non)
+  :Refuser (offre complète);
+  stop
+endif
+|Client|
+:Choisir le moyen de paiement;
+if (Wave / Orange Money / Carte) then (en ligne)
+  |Système|
+  :Initier le paiement;
+  if (Paiement réussi ?) then (oui)
+    :Statut = payée;
+    :E-mail « paiement reçu »;
+  else (non)
+    :Statut paiement = échoué;
+  endif
+else (Espèces / virement)
+  |Agent|
+  :Encaisser en agence\nou constater le virement;
+  :Valider le paiement;
+  |Système|
+  :Statut = payée;
+endif
+|Client|
+:Imprimer le bon de réservation;
+stop
+@enduml

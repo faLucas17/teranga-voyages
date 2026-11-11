@@ -1,0 +1,15 @@
+.env
+.env.prod
+.env.*.local
+.DS_Store
+*.log
+node_modules/
+dist/
+
+# Sauvegardes de base de données (contiennent des données clients) : ne jamais publier
+*.sql
+*.sql.gz
+
+# Certificats et clés
+*.pem
+*.key

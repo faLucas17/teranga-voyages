@@ -1,0 +1,47 @@
+@startuml composants
+!include _style.iuml
+title Diagramme de composants — architecture applicative
+
+package "Frontend (React 18 + Vite + Tailwind)" {
+  [Pages publiques\nAccueil, Voyages, Vols,\nHôtels, Visa, Contact] as PUB
+  [Espace client\nRéservations, Favoris,\nProfil, Visas] as ACC
+  [Back-office\nTableau de bord, CRUD,\nRéservations, Paiements] as ADM
+  [AuthContext /\nSettingsContext] as CTX
+  [Client HTTP (axios)] as AX
+  PUB --> AX
+  ACC --> AX
+  ADM --> AX
+  PUB ..> CTX
+  ACC ..> CTX
+  ADM ..> CTX
+}
+
+package "Backend (Laravel 11 — API REST)" {
+  [Routes /api] as R
+  [Middlewares\nauth:sanctum, role, throttle] as MW
+  [Contrôleurs\nCatalog, Booking, Customer,\nAdmin\\*] as CTRL
+  [BookingService] as BS
+  [PaymentManager\n+ passerelles] as PM
+  [Modèles Eloquent] as M
+  [Mail (BookingMail)] as MAIL
+  [Planificateur\n(annulation auto)] as SCH
+  R --> MW
+  MW --> CTRL
+  CTRL --> BS
+  CTRL --> PM
+  BS --> M
+  PM --> M
+  BS --> MAIL
+  PM --> MAIL
+  SCH --> M
+}
+
+database "MySQL 8" as DB
+cloud "Wave / Orange Money /\nStripe" as PSP
+node "Serveur SMTP\n(Mailpit en dev)" as SMTP
+
+AX --> R : JSON / HTTPS\nBearer token
+M --> DB
+PM --> PSP : API + webhooks
+MAIL --> SMTP
+@enduml

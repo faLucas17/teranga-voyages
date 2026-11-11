@@ -1,0 +1,122 @@
+# ==============================================================
+#  Teranga Voyages - environnement de développement complet
+#  Démarrage :   docker compose up -d --build
+#  Site      :   http://localhost:8080
+#  phpMyAdmin:   http://localhost:8081
+#  E-mails   :   http://localhost:8025  (Mailpit)
+# ==============================================================
+name: teranga
+
+x-backend-env: &backend-env
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:8080
+  FRONTEND_URL: http://localhost:8080
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: 3306
+  DB_DATABASE: teranga
+  DB_USERNAME: teranga
+  DB_PASSWORD: secret
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: 1025
+  PAYMENT_DEFAULT_DRIVER: simulation
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: teranga
+      MYSQL_USER: teranga
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Africa/Dakar
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment: *backend-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./backend:/var/www/html          # le code est modifiable en direct
+      - backend-vendor:/var/www/html/vendor
+      - uploads:/var/www/html/storage/app/public
+
+  scheduler:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      RUN_SETUP: "false"
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      - backend
+    volumes:
+      - ./backend:/var/www/html
+      - backend-vendor:/var/www/html/vendor
+      - uploads:/var/www/html/storage/app/public
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    volumes:
+      - uploads:/var/www/html/storage/app/public:ro
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+
+  # Frontend avec rechargement à chaud (optionnel) :
+  #   docker compose --profile dev up -d frontend-dev   ->  http://localhost:5173
+  frontend-dev:
+    image: node:20-alpine
+    profiles: ["dev"]
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    environment:
+      VITE_PROXY_TARGET: http://web
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - web
+
+volumes:
+  mysql-data:
+  backend-vendor:
+  uploads:
+  frontend-node-modules:

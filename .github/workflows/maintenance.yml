@@ -1,0 +1,29 @@
+# Cron gratuit : appelle l'API toutes les heures pour la maintenance
+# (annulation des réservations impayées, purge des jetons expirés).
+# À configurer dans GitHub > Settings > Secrets and variables > Actions :
+#   API_URL      = https://teranga-api.onrender.com   (sans / à la fin)
+#   CRON_SECRET  = la valeur de CRON_SECRET affichée dans Render
+name: Maintenance horaire
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appel de /api/cron/run
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$API_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "Secrets API_URL / CRON_SECRET non configurés : rien à faire."
+            exit 0
+          fi
+          # --max-time large : l'API gratuite peut mettre ~1 min à se réveiller
+          curl --fail --silent --show-error --max-time 120 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" -H "Accept: application/json" \
+            "$API_URL/api/cron/run"

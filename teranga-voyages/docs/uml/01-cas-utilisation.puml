@@ -1,0 +1,84 @@
+@startuml cas-utilisation
+!include _style.iuml
+title Diagramme de cas d'utilisation — Teranga Voyages
+left to right direction
+
+actor "Visiteur" as V
+actor "Client" as C
+actor "Agent" as A
+actor "Administrateur" as AD
+actor "Prestataire de paiement\n(Wave / Orange Money / Carte)" as PSP <<système>>
+
+C -|> V
+AD -|> A
+
+rectangle "Site public" {
+  usecase "Consulter le catalogue\n(voyages, destinations)" as UC1
+  usecase "Rechercher / filtrer\nles offres" as UC2
+  usecase "Rechercher un vol" as UC3
+  usecase "Rechercher un hôtel" as UC4
+  usecase "Demander un visa" as UC5
+  usecase "Contacter l'agence" as UC6
+  usecase "S'inscrire à la newsletter" as UC7
+  usecase "Créer un compte /\nse connecter" as UC8
+}
+
+rectangle "Espace client" {
+  usecase "Réserver une offre" as UC10
+  usecase "Appliquer un code promo" as UC11
+  usecase "Payer en ligne" as UC12
+  usecase "Annuler une réservation" as UC13
+  usecase "Imprimer le bon /\nla facture" as UC14
+  usecase "Gérer ses favoris" as UC15
+  usecase "Donner un avis" as UC16
+  usecase "Suivre ses demandes\nde visa" as UC17
+  usecase "Gérer son profil" as UC18
+}
+
+rectangle "Back-office" {
+  usecase "Consulter le tableau\nde bord" as UC20
+  usecase "Gérer le catalogue\n(voyages, destinations,\nhôtels, vols)" as UC21
+  usecase "Gérer les réservations\net leurs statuts" as UC22
+  usecase "Encaisser / valider\nun paiement" as UC23
+  usecase "Gérer les codes promo" as UC24
+  usecase "Traiter les demandes\nde visa" as UC25
+  usecase "Modérer les avis" as UC26
+  usecase "Lire les messages" as UC27
+  usecase "Exporter les réservations" as UC28
+  usecase "Gérer les utilisateurs\net les rôles" as UC29
+  usecase "Paramétrer l'agence\n(marque blanche)" as UC30
+}
+
+V --> UC1
+V --> UC2
+V --> UC3
+V --> UC4
+V --> UC5
+V --> UC6
+V --> UC7
+V --> UC8
+
+C --> UC10
+C --> UC12
+C --> UC13
+C --> UC14
+C --> UC15
+C --> UC16
+C --> UC17
+C --> UC18
+UC10 <.. UC11 : <<extend>>
+UC12 ..> UC10 : <<include>>
+UC12 -- PSP
+
+A --> UC20
+A --> UC21
+A --> UC22
+A --> UC23
+A --> UC24
+A --> UC25
+A --> UC26
+A --> UC27
+A --> UC28
+AD --> UC29
+AD --> UC30
+@enduml

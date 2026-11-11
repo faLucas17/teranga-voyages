@@ -1,0 +1,42 @@
+# --------------------------------------------------------------
+# Teranga Voyages - API Laravel pour Render (un seul conteneur : Apache + PHP 8.3)
+# Render fournit le port d'écoute dans la variable PORT.
+# --------------------------------------------------------------
+FROM php:8.3-apache
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git unzip libicu-dev libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev libwebp-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql intl zip gd bcmath opcache exif \
+    && a2enmod rewrite headers \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY docker/php.ini /usr/local/etc/php/conf.d/zz-teranga.ini
+# En production le code ne change pas : PHP n'a pas besoin de revérifier les fichiers
+RUN printf 'opcache.validate_timestamps=0\n' > /usr/local/etc/php/conf.d/zz-prod.ini
+
+# Apache sert le dossier public/ de Laravel
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && printf '<Directory /var/www/html/public>\n    AllowOverride All\n</Directory>\n' > /etc/apache2/conf-available/laravel.conf \
+    && a2enconf laravel \
+    && printf 'ServerTokens Prod\nServerSignature Off\n' > /etc/apache2/conf-available/zz-security.conf \
+    && a2enconf zz-security
+
+WORKDIR /var/www/html
+
+COPY composer.json composer.lock* ./
+RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts --no-autoloader
+
+COPY . .
+RUN composer dump-autoload --optimize --no-dev \
+    && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views \
+                storage/framework/testing storage/logs storage/app/public bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache
+
+COPY docker/render-start.sh /usr/local/bin/render-start
+RUN chmod +x /usr/local/bin/render-start
+
+CMD ["render-start"]

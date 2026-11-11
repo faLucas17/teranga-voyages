@@ -1,0 +1,127 @@
+# ==============================================================
+#  Teranga Voyages - environnement de développement complet
+#  Démarrage :   docker compose up -d --build
+#  Site      :   http://localhost:8190
+#  phpMyAdmin:   http://localhost:8191
+#  E-mails   :   http://localhost:8126  (Mailpit)
+#  Ports modifiables sans toucher ce fichier : créez un fichier .env à la racine
+#  avec WEB_PORT=..., PMA_PORT=..., MYSQL_PORT=..., MAILPIT_PORT=...
+# ==============================================================
+name: teranga
+
+x-backend-env: &backend-env
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:${WEB_PORT:-8190}
+  FRONTEND_URL: http://localhost:${WEB_PORT:-8190}
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: 3306
+  DB_DATABASE: teranga
+  DB_USERNAME: teranga
+  DB_PASSWORD: secret
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: 1025
+  PAYMENT_DEFAULT_DRIVER: simulation
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: teranga
+      MYSQL_USER: teranga
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Africa/Dakar
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "${MYSQL_PORT:-3319}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment: *backend-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./backend:/var/www/html          # le code est modifiable en direct
+      - backend-vendor:/var/www/html/vendor
+      - uploads:/var/www/html/storage/app/public
+
+  scheduler:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      RUN_SETUP: "false"
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      - backend
+    volumes:
+      - ./backend:/var/www/html
+      - backend-vendor:/var/www/html/vendor
+      - uploads:/var/www/html/storage/app/public
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_SHOW_DEMO_ACCOUNTS: "true"   # en local seulement
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${WEB_PORT:-8190}:80"
+    volumes:
+      - uploads:/var/www/html/storage/app/public:ro
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "${PMA_PORT:-8191}:80"
+    depends_on:
+      - mysql
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_PORT:-8126}:8025"
+
+  # Frontend avec rechargement à chaud (optionnel) :
+  #   docker compose --profile dev up -d frontend-dev   ->  http://localhost:5183
+  frontend-dev:
+    image: node:20-alpine
+    profiles: ["dev"]
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    environment:
+      VITE_PROXY_TARGET: http://web
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    ports:
+      - "${VITE_PORT:-5183}:5173"
+    depends_on:
+      - web
+
+volumes:
+  mysql-data:
+  backend-vendor:
+  uploads:
+  frontend-node-modules:

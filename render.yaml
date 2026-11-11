@@ -1,0 +1,87 @@
+# ==============================================================
+#  Render Blueprint : API Laravel de Teranga Voyages
+#  Render > New > Blueprint > choisir ce dépôt.
+#  Les valeurs "sync: false" sont demandées à la création (secrets, jamais dans Git).
+# ==============================================================
+services:
+  - type: web
+    name: teranga-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./backend/Dockerfile.render
+    dockerContext: ./backend
+    healthCheckPath: /up
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      # --- Application ---
+      - key: APP_NAME
+        value: Teranga Voyages
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false          # base64:... généré avec php artisan key:generate --show
+      - key: APP_URL
+        sync: false          # https://teranga-api.onrender.com (ou api.votre-domaine.com)
+      - key: FRONTEND_URL
+        sync: false          # https://teranga-voyages.pages.dev (ou www.votre-domaine.com)
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false          # même valeur que FRONTEND_URL (plusieurs : séparées par des virgules)
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: warning
+      - key: SESSION_DRIVER
+        value: array
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SEED_DEMO
+        value: "false"
+
+      # --- Base de données MySQL (Aiven) ---
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_DATABASE
+        value: defaultdb
+      - key: DB_USERNAME
+        value: avnadmin
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_CA_CERT
+        sync: false          # contenu complet du fichier ca.pem d'Aiven
+
+      # --- E-mails Brevo (API HTTP : le SMTP est bloqué sur Render gratuit) ---
+      - key: MAIL_MAILER
+        value: brevo
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false          # adresse d'expéditeur validée dans Brevo
+      - key: MAIL_FROM_NAME
+        value: Teranga Voyages
+
+      # --- Agence & paiements ---
+      - key: AGENCY_NAME
+        value: Teranga Voyages
+      - key: PAYMENT_DEFAULT_DRIVER
+        value: simulation    # passer à "live" quand Wave est configuré
+      - key: WAVE_API_KEY
+        sync: false
+      - key: WAVE_WEBHOOK_SECRET
+        sync: false
+
+      # --- Sécurité ---
+      - key: CRON_SECRET
+        generateValue: true  # secret aléatoire pour POST /api/cron/run
+      - key: SANCTUM_EXPIRATION
+        value: "10080"       # jetons de connexion valables 7 jours
