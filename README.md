@@ -3,7 +3,7 @@
 Application web complète d'agence de voyage : site de vente en ligne, espace client et back-office.
 **Laravel 12 (API) · React 18 (Vite + Tailwind) · MySQL 8 · Docker**
 
-![Logo](branding/logo-horizontal.png)
+![Logo](branding/logo-teranga.png)
 
 ---
 
@@ -17,7 +17,7 @@ teranga-voyages/
 │   ├── Cahier_des_charges_Teranga_Voyages.pdf   ← cahier des charges complet
 │   ├── CAHIER_DES_CHARGES.md                    ← même contenu, modifiable
 │   └── uml/            10 diagrammes UML (.puml sources + .png)
-├── branding/           Logo (SVG + PNG) et charte couleurs
+├── branding/           Logo officiel (couleur, blanc, icône) et charte couleurs
 ├── docker-compose.yml        Environnement de développement
 ├── docker-compose.prod.yml   Environnement de production
 └── Makefile            Raccourcis de commandes
@@ -112,7 +112,7 @@ Le dossier est monté dans le conteneur : **toute modification d'un fichier PHP 
 | Je veux… | Fichier(s) |
 |---|---|
 | Changer les couleurs | `frontend/tailwind.config.js` (palettes `bic` et `sky`) |
-| Changer le logo | `frontend/public/logo-*.svg` et `branding/` |
+| Changer le logo | `frontend/public/logo-teranga.png` (fond clair), `logo-teranga-white.png` (fond bleu), `favicon.png`, `icon-512.png` |
 | Modifier une page | `frontend/src/pages/…` |
 | Ajouter une page | Créer le composant puis l'ajouter dans `frontend/src/App.jsx` |
 | Ajouter un écran CRUD au back-office | Copier un bloc de `frontend/src/pages/admin/CatalogPages.jsx` (composant générique `ResourcePage`) |
@@ -127,7 +127,7 @@ Le dossier est monté dans le conteneur : **toute modification d'un fichier PHP 
 
 ## 5. Mettre en ligne (production)
 
-> **Hébergement gratuit recommandé : Render (API) + Cloudflare Pages (site) + Aiven (MySQL) + Brevo (e-mails).**
+> **Hébergement gratuit recommandé : Render (API) + Cloudflare Pages (site) + Neon (PostgreSQL) + Brevo (e-mails).**
 > Guide pas à pas : [`docs/DEPLOIEMENT.md`](docs/DEPLOIEMENT.md). La suite de cette section décrit l'autre option : un VPS avec Docker.
 
 1. Louez un **VPS Linux** (2 Go RAM minimum : OVH, Hetzner, DigitalOcean, Contabo…) et installez Docker.

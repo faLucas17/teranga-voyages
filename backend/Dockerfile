@@ -12,6 +12,9 @@ RUN apk add --no-cache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql mbstring intl zip gd bcmath opcache pcntl exif
 
+# PostgreSQL (Neon) : couche séparée pour garder en cache l'étape précédente, plus longue
+RUN apk add --no-cache libpq-dev && docker-php-ext-install pdo_pgsql
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-teranga.ini
 

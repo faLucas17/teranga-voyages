@@ -14,7 +14,7 @@ if [ -z "${APP_KEY}" ]; then
     exit 1
 fi
 
-# Certificat SSL de la base (Aiven) : collé dans la variable DB_CA_CERT sur Render
+# Certificat SSL optionnel (bases MySQL type Aiven) : variable DB_CA_CERT. Inutile avec Neon.
 if [ -n "${DB_CA_CERT}" ]; then
     printf '%s\n' "${DB_CA_CERT}" > /tmp/db-ca.pem
     export MYSQL_ATTR_SSL_CA=/tmp/db-ca.pem

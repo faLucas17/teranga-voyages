@@ -44,21 +44,11 @@ services:
       - key: SEED_DEMO
         value: "false"
 
-      # --- Base de données MySQL (Aiven) ---
+      # --- Base de données PostgreSQL (Neon) ---
       - key: DB_CONNECTION
-        value: mysql
-      - key: DB_HOST
-        sync: false
-      - key: DB_PORT
-        sync: false
-      - key: DB_DATABASE
-        value: defaultdb
-      - key: DB_USERNAME
-        value: avnadmin
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_CA_CERT
-        sync: false          # contenu complet du fichier ca.pem d'Aiven
+        value: pgsql
+      - key: DB_URL
+        sync: false          # chaîne de connexion Neon (connexion directe, sans "-pooler"), finit par ?sslmode=require
 
       # --- E-mails Brevo (API HTTP : le SMTP est bloqué sur Render gratuit) ---
       - key: MAIL_MAILER

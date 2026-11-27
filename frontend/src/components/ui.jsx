@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Inbox, Star, X } from 'lucide-react'
 
-/** Logo (icône + nom). `light` pour fond bleu. */
-export function Logo({ light = false, compact = false, name = 'Teranga' }) {
+/**
+ * Logo officiel Teranga Voyages.
+ *  light   : version blanche pour les fonds bleus
+ *  size    : 'sm' | 'md' | 'lg'
+ */
+export function Logo({ light = false, size = 'md', className = '' }) {
+  const heights = { sm: 'h-12', md: 'h-14 sm:h-16', lg: 'h-16 sm:h-20' }
   return (
-    <span className="inline-flex items-center gap-2.5">
-      <img src="/logo-icon.svg" alt="" className="h-10 w-10" />
-      {!compact && (
-        <span className="leading-none">
-          <span className={`block text-xl font-extrabold tracking-tight ${light ? 'text-white' : 'text-bic-600'}`}>{name}</span>
-          <span className={`block text-[10px] font-semibold tracking-[0.35em] ${light ? 'text-sky-200' : 'text-sky-400'}`}>VOYAGES</span>
-        </span>
-      )}
-    </span>
+    <img
+      src={light ? '/logo-teranga-white.png' : '/logo-teranga.png'}
+      alt="Teranga Voyages"
+      className={`${heights[size] || heights.md} w-auto max-w-full shrink-0 self-start object-contain select-none ${className}`}
+      draggable="false"
+    />
   )
 }
 

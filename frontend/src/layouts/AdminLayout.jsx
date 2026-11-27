@@ -54,7 +54,7 @@ export default function AdminLayout() {
   const sidebar = (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-5 py-5">
-        <Link to="/admin"><Logo light /></Link>
+        <Link to="/admin"><Logo light size="sm" /></Link>
         <button className="text-sky-200 lg:hidden" onClick={() => setOpen(false)}><X className="h-5 w-5" /></button>
       </div>
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 pb-6">

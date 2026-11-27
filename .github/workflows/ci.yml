@@ -1,4 +1,4 @@
-# Vérifie le projet à chaque envoi sur GitHub : tests Laravel + build React
+# Vérifie le projet à chaque envoi sur GitHub : tests Laravel (SQLite + PostgreSQL) + build React
 name: CI
 
 on:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend:
-    name: Tests Laravel
+    name: Tests Laravel (SQLite)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,8 +22,53 @@ jobs:
           coverage: none
       - name: Dépendances
         run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Fichier .env
+        run: cp .env.example .env
       - name: Tests
         run: php artisan test
+
+  backend-postgres:
+    name: Tests Laravel (PostgreSQL, comme Neon)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: teranga
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: teranga_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U teranga"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite, pdo_pgsql, intl, zip, gd, bcmath
+          coverage: none
+      - name: Dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Fichier .env
+        run: cp .env.example .env && php artisan key:generate
+      - name: Tests sur PostgreSQL
+        run: php artisan test --configuration=phpunit.pgsql.xml
+      - name: Copie de données vers PostgreSQL (app:copy-database)
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: /tmp/source.sqlite
+          MAIL_MAILER: array
+        run: |
+          touch /tmp/source.sqlite
+          php artisan migrate --force --seed
+          php artisan app:copy-database "postgresql://teranga:secret@127.0.0.1:5432/teranga_test" --force
+          COUNT=$(PGPASSWORD=secret psql -h 127.0.0.1 -U teranga -d teranga_test -tAc "SELECT COUNT(*) FROM travel_packages")
+          echo "Voyages copiés : $COUNT"
+          test "$COUNT" -gt 0
 
   frontend:
     name: Build React

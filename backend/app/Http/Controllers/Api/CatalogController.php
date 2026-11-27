@@ -27,8 +27,8 @@ class CatalogController extends Controller
             ->when($request->boolean('featured'), fn ($q) => $q->where('is_featured', true))
             ->when($request->filled('continent'), fn ($q) => $q->where('continent', $request->string('continent')))
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w
-                ->where('name', 'like', '%'.$request->string('q').'%')
-                ->orWhere('country', 'like', '%'.$request->string('q').'%')))
+                ->whereLike('name', '%'.$request->string('q').'%')
+                ->orWhereLike('country', '%'.$request->string('q').'%')))
             ->orderByDesc('is_featured')
             ->orderBy('name')
             ->get();
@@ -75,11 +75,11 @@ class CatalogController extends Controller
     {
         $query
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w
-                ->where('title', 'like', '%'.$request->string('q').'%')
-                ->orWhere('summary', 'like', '%'.$request->string('q').'%')
+                ->whereLike('title', '%'.$request->string('q').'%')
+                ->orWhereLike('summary', '%'.$request->string('q').'%')
                 ->orWhereHas('destination', fn ($d) => $d
-                    ->where('name', 'like', '%'.$request->string('q').'%')
-                    ->orWhere('country', 'like', '%'.$request->string('q').'%'))))
+                    ->whereLike('name', '%'.$request->string('q').'%')
+                    ->orWhereLike('country', '%'.$request->string('q').'%'))))
             ->when($request->filled('destination'), fn ($q) => $q->whereHas('destination', fn ($d) => $d
                 ->where('slug', $request->string('destination'))
                 ->orWhere('id', $request->integer('destination'))))
@@ -152,8 +152,8 @@ class CatalogController extends Controller
                 ->where('slug', $request->string('destination'))
                 ->orWhere('id', $request->integer('destination'))))
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w
-                ->where('name', 'like', '%'.$request->string('q').'%')
-                ->orWhere('address', 'like', '%'.$request->string('q').'%')))
+                ->whereLike('name', '%'.$request->string('q').'%')
+                ->orWhereLike('address', '%'.$request->string('q').'%')))
             ->when($request->filled('stars'), fn ($q) => $q->where('stars', '>=', $request->integer('stars')))
             ->when($request->filled('max_price'), fn ($q) => $q->where('price_per_night', '<=', $request->integer('max_price')))
             ->orderBy('price_per_night', $request->string('sort')->toString() === 'price_desc' ? 'desc' : 'asc')
@@ -177,10 +177,10 @@ class CatalogController extends Controller
             ->where('departure_at', '>=', now())
             ->when($request->filled('from'), fn ($q) => $q->where(fn ($w) => $w
                 ->where('from_code', strtoupper($request->string('from')))
-                ->orWhere('from_city', 'like', '%'.$request->string('from').'%')))
+                ->orWhereLike('from_city', '%'.$request->string('from').'%')))
             ->when($request->filled('to'), fn ($q) => $q->where(fn ($w) => $w
                 ->where('to_code', strtoupper($request->string('to')))
-                ->orWhere('to_city', 'like', '%'.$request->string('to').'%')))
+                ->orWhereLike('to_city', '%'.$request->string('to').'%')))
             ->when($request->filled('date'), fn ($q) => $q->whereDate('departure_at', $request->date('date')))
             ->when($request->filled('cabin_class'), fn ($q) => $q->where('cabin_class', $request->string('cabin_class')))
             ->when($request->filled('passengers'), fn ($q) => $q->where('seats_available', '>=', $request->integer('passengers')))

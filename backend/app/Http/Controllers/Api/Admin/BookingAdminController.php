@@ -31,10 +31,10 @@ class BookingAdminController extends Controller
             ->when($request->filled('to'), fn ($q) => $q->whereDate('created_at', '<=', $request->date('to')))
             ->when($request->filled('q'), function ($q) use ($request) {
                 $term = '%'.$request->string('q').'%';
-                $q->where(fn ($w) => $w->where('reference', 'like', $term)
-                    ->orWhere('contact_name', 'like', $term)
-                    ->orWhere('contact_email', 'like', $term)
-                    ->orWhere('contact_phone', 'like', $term));
+                $q->where(fn ($w) => $w->whereLike('reference', $term)
+                    ->orWhereLike('contact_name', $term)
+                    ->orWhereLike('contact_email', $term)
+                    ->orWhereLike('contact_phone', $term));
             })
             ->latest();
 
@@ -108,7 +108,7 @@ class BookingAdminController extends Controller
         $payments = Payment::with(['booking:id,reference,status', 'user:id,name,email'])
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when($request->filled('method'), fn ($q) => $q->where('method', $request->string('method')))
-            ->when($request->filled('q'), fn ($q) => $q->where('transaction_ref', 'like', '%'.$request->string('q').'%'))
+            ->when($request->filled('q'), fn ($q) => $q->whereLike('transaction_ref', '%'.$request->string('q').'%'))
             ->latest()
             ->paginate($this->perPage($request, 15));
 
