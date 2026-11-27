@@ -56,7 +56,7 @@ jobs:
       - name: Fichier .env
         run: cp .env.example .env && php artisan key:generate
       - name: Tests sur PostgreSQL
-        run: php artisan test --configuration=phpunit.pgsql.xml
+        run: vendor/bin/phpunit --configuration phpunit.pgsql.xml
       - name: Copie de données vers PostgreSQL (app:copy-database)
         env:
           DB_CONNECTION: sqlite
