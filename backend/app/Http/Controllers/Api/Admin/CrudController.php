@@ -50,7 +50,7 @@ abstract class CrudController extends Controller
             $term = '%'.$request->string('q').'%';
             $query->where(function (Builder $w) use ($term) {
                 foreach ($this->searchable as $column) {
-                    $w->orWhere($column, 'like', $term);
+                    $w->orWhereLike($column, $term);
                 }
             });
         }

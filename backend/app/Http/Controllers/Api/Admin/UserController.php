@@ -17,9 +17,9 @@ class UserController extends Controller
             ->withSum(['bookings as total_spent' => fn ($q) => $q->whereIn('status', ['paid', 'completed'])], 'total')
             ->when($request->filled('role'), fn ($q) => $q->where('role', $request->string('role')))
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w
-                ->where('name', 'like', '%'.$request->string('q').'%')
-                ->orWhere('email', 'like', '%'.$request->string('q').'%')
-                ->orWhere('phone', 'like', '%'.$request->string('q').'%')))
+                ->whereLike('name', '%'.$request->string('q').'%')
+                ->orWhereLike('email', '%'.$request->string('q').'%')
+                ->orWhereLike('phone', '%'.$request->string('q').'%')))
             ->latest()
             ->paginate($this->perPage($request, 15));
 

@@ -1,14 +1,22 @@
-# Propose automatiquement les mises à jour de sécurité des dépendances
+# Propose automatiquement les mises à jour de sécurité des dépendances.
+# Les montées de version majeures (ex. PHPUnit 11 -> 13) sont ignorées :
+# elles cassent souvent la compatibilité et se font à la main.
 version: 2
 updates:
   - package-ecosystem: composer
     directory: /backend
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: npm
     directory: /frontend
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

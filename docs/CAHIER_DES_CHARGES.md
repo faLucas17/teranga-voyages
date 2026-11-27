@@ -22,7 +22,7 @@ L'application est conçue en **marque blanche** : le nom, les coordonnées, les 
 | Couleur secondaire | Bleu clair `#4FB3E8`, fond très clair `#E6F4FD` |
 | Fond | Blanc `#FFFFFF` |
 | Police | Poppins (titres et texte) |
-| Logo | Avion en papier blanc traçant une trajectoire au-dessus de vagues bleu clair, dans un cercle bleu Bic (fichiers `branding/`) |
+| Logo | Globe terrestre centré sur l'Afrique, entouré d'une trajectoire et d'un avion en vol, avec « Teranga » en bleu Bic et « VOYAGES » en bleu clair (fichiers `branding/`) |
 
 ## 1.3 Objectifs
 

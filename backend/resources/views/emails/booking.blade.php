@@ -6,9 +6,8 @@
     <tr><td align="center">
         <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden">
             <tr>
-                <td style="background:#0039A6;padding:24px 32px;color:#ffffff">
-                    <div style="font-size:22px;font-weight:bold">{{ $agency }}</div>
-                    <div style="font-size:13px;color:#BEE3F8;letter-spacing:2px">VOYAGES</div>
+                <td style="background:#0039A6;padding:20px 32px;color:#ffffff">
+                    <img src="{{ $frontendUrl }}/logo-teranga-white.png" alt="{{ $agency }}" height="56" style="display:block;height:56px;width:auto;border:0">
                 </td>
             </tr>
             <tr>

@@ -14,7 +14,7 @@ import Hotels from './pages/Hotels'
 import Flights from './pages/Flights'
 import Booking from './pages/Booking'
 import { About, Contact, NotFound, Terms, Visa } from './pages/Static'
-import { Login, Register } from './pages/Auth'
+import { ForgotPassword, Login, Register, ResetPassword } from './pages/Auth'
 import { Favorites, MyBookings, MyVisas, Profile } from './pages/account/Account'
 import BookingDetail from './pages/account/BookingDetail'
 
@@ -61,6 +61,8 @@ export default function App() {
           <Route path="conditions" element={<Terms />} />
           <Route path="connexion" element={<Login />} />
           <Route path="inscription" element={<Register />} />
+          <Route path="mot-de-passe-oublie" element={<ForgotPassword />} />
+          <Route path="reinitialiser-mot-de-passe" element={<ResetPassword />} />
 
           {/* Espace client */}
           <Route element={<ProtectedRoute />}>

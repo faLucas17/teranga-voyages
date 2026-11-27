@@ -117,7 +117,7 @@ function Footer() {
     <footer className="mt-20 bg-bic-800 text-sky-100 no-print">
       <div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
         <div>
-          <Logo light name={(s.agency_name || 'Teranga').split(' ')[0]} />
+          <Logo light size="lg" />
           <p className="mt-4 text-sm leading-relaxed text-sky-200">{s.agency_slogan}. Séjours, circuits, pèlerinages, billets d'avion, hôtels et visas au départ de Dakar.</p>
         </div>
         <div>

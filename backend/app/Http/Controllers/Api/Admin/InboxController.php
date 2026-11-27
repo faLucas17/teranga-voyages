@@ -49,9 +49,9 @@ class InboxController extends Controller
         return response()->json(ContactMessage::query()
             ->when($request->filled('is_read'), fn ($q) => $q->where('is_read', $request->boolean('is_read')))
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w
-                ->where('name', 'like', '%'.$request->string('q').'%')
-                ->orWhere('email', 'like', '%'.$request->string('q').'%')
-                ->orWhere('subject', 'like', '%'.$request->string('q').'%')))
+                ->whereLike('name', '%'.$request->string('q').'%')
+                ->orWhereLike('email', '%'.$request->string('q').'%')
+                ->orWhereLike('subject', '%'.$request->string('q').'%')))
             ->latest()
             ->paginate($this->perPage($request, 15)));
     }
@@ -77,9 +77,9 @@ class InboxController extends Controller
         return response()->json(VisaRequest::query()
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when($request->filled('q'), fn ($q) => $q->where(fn ($w) => $w
-                ->where('reference', 'like', '%'.$request->string('q').'%')
-                ->orWhere('full_name', 'like', '%'.$request->string('q').'%')
-                ->orWhere('destination_country', 'like', '%'.$request->string('q').'%')))
+                ->whereLike('reference', '%'.$request->string('q').'%')
+                ->orWhereLike('full_name', '%'.$request->string('q').'%')
+                ->orWhereLike('destination_country', '%'.$request->string('q').'%')))
             ->latest()
             ->paginate($this->perPage($request, 15)));
     }
